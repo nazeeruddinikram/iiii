@@ -1,0 +1,16 @@
+# iiii config file
+
+# general settings
+iidir="/home/$(whoami)/.ii"
+nick="$(whoami)" ## defaults to username
+autoconnect=("freenode") # servers to autoconnect to
+
+
+# define servers
+freenode() {
+  host="irc.freenode.net" # server address
+  port="6667"
+  autojoins=("#archlinux" "#archlinux-offtopic") # channels to auto-join
+# nick="nick" # set this if you want a different nick per server
+# nickpass="password" ## set this if you're registered to nickserv
+}

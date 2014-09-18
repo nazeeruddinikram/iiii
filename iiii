@@ -1,0 +1,83 @@
+#!/bin/bash
+#   _  _  _  _ 
+#  (_)(_)(_)(_)
+#  | || || || |
+#  | || || || |
+#  |_||_||_||_|
+#
+#    irc it, immensely improved
+#    a wrapper for ii and tmux
+#    written by thomas berryhill <tb01110100@gmail.com>
+#    under the mit license
+
+source ~/.ii/config || { echo "config file ~/.ii/config not found, aborting" >&2; exit 1; }
+
+case "$1" in
+  -h|--help|help)
+    cat << EOF
+
+iiii 0.1
+written by tb01110100
+
+usage: iiii [help|start|stop|view]
+
+EOF
+    exit ;;
+  start)
+    for network in "${autoconnect[@]}"; do
+      "$network"
+      while true; do
+        rm "$iidir/$host/in"
+        echo "connecting to $host"
+        ii -i "$iidir" -s "$host" -p "$port" -n "$nick" &
+        iipid="$!"
+        until [[ -p "$iidir/$host/in" ]]; do sleep .2; done
+        echo "successfully connected to $host"
+        if [[ -n "$nickpass" ]]; then
+          echo "attempting to identify to ${host}'s nickserv"
+          echo "/j nickserv identify $nickpass" > "$iidir/$host/in"
+          sleep 10
+        fi
+        echo "joining channels: ${autojoins[*]}"
+        printf "/j %s\n" "${autojoins[@]}" > "$iidir/$host/in"
+        wait "$iipid"
+        echo "connection to $host lost, attempting to reconnect"
+      done &
+      unset host port autojoins nick nickpass
+      nick="$(whoami)"
+    done
+    wait
+    exit ;;
+  stop)
+    killall ii
+    exit ;;
+  view|v)
+    shift 1
+    [[ "$(tmux display-message -p \#S)" != "ii" ]] && tmux rename-session ii
+    tmux set status on 
+    tmux set status-position top
+    tmux set status-bg black
+    tmux set status-fg yellow
+    tmux set status-left ""
+    tmux set status-right ""
+    tmux set status-justify centre
+    tmux set mouse-select-window on
+    tmux set pane-border-style fg=yellow
+    tmux set pane-active-border-style fg=yellow
+    tmux rename-window "$2"
+    tmux split-window -l 2 "$0 m $1 \\$2"
+    clear
+    tail -f -n 100 ~/.ii/"$1"/"$2"/out | while read -r ln; do printf \\n%s "$ln"; done ;;
+  message|m)
+    shift 1
+    color='\e[0;33m' # yellow
+    endcolor='\e[0m'
+    while true; do
+      history -c
+      history -r ~/.ii/"$1"/"$2"/in-history
+      clear
+      echo -e "${color}serv: $1  |  chan: $2  |  nick: $nick${endcolor}"
+      read -ep " >  " input_text
+      echo "$input_text" | tee -a ~/.ii/"$1"/"$2"/in-history ~/.ii/"$1"/"$2"/in >/dev/null
+    done ;;
+esac
