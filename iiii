@@ -67,7 +67,7 @@ EOF
     tmux rename-window "$2"
     tmux split-window -l 2 "$0 m $1 \\$2"
     clear
-    tail -f -n 100 ~/.ii/"$1"/"$2"/out | while read -r ln; do printf \\n%s "$ln"; done ;;
+    tail -f -n 100 ~/.ii/"$1"/"$2"/out | sed -u -e 's/[^ ]*[^ ]/\x1b[0;33m&\x1b[0m/3' | while read -r ln; do printf \\n%s "$ln"; done ;;
   message|m)
     shift 1
     color='\e[0;33m' # yellow
