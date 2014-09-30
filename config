@@ -5,6 +5,12 @@ iidir="/home/$(whoami)/.ii"
 nick="$(whoami)" ## defaults to username
 autoconnect=("freenode") # servers to autoconnect to
 
+# colors - "black, red, green, yellow, blue, magenta, cyan, white" with _bold or _bg
+nicks="yellow"
+your_nick="white_bold"
+highlight="yellow_bg"
+action="yellow_bold"
+ui_accent="yellow"
 
 # define servers
 freenode() {
