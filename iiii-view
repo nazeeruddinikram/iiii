@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# iiii view script
+
+source ~/.ii/config || { echo "config file ~/.ii/config not found, aborting" >&2; exit 1; }
+"$1"
+clear
+
+color1="$(colorconvert $nicks)"
+color2="$(colorconvert $your_nick)"
+color3="$(colorconvert $highlight)"
+color4="$(colorconvert $action)"
+endcolor="$(colorconvert end)"
+
+# adjust a few vars so sed can understand them without panicking
+sedcolor1=${color1//\[/\\\[}
+sedcolor2=${color2//\[/\\\[}
+sedendcolor=${endcolor//\[/\\\[}
+
+# note to self: DON'T TOUCH THESE NEXT FEW LINES EVER, EVER AGAIN
+[[ $# -eq 2 ]] && taildir="$iidir/$host/$2"
+[[ $# -eq 1 ]] && taildir="$iidir/$host"
+tail -f -n 100 "${taildir}/out" | sed -u \
+  -e 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\} \([0-9]\{2\}:[0-9]\{2\}\)/\1/g' \
+  -e "s/<\([^>]*\)>/${color1}\1${endcolor}/" \
+  -e "s/$nick/${color2}&${endcolor}/g" \
+  -e "s/^\([0-9]\{2\}:[0-9]\{2\} \)${sedcolor1}\(.*\)${sedendcolor}\(.*\)${sedcolor2}$nick${sedendcolor}\(.*\)/\1${color3}\2${endcolor}\3$nick\4/" \
+  -e "s/ACTION \(.*\)/${color4}*\1${endcolor}/" \
+  | while read -r ln; do printf "\n%s" "$ln"; done

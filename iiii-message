@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# iiii message script
+
+source ~/.ii/config || { echo "config file ~/.ii/config not found, aborting" >&2; exit 1; }
+"$1"
+
+color5="$(colorconvert $ui_accent)"
+endcolor="$(colorconvert end)"
+
+[[ $# -eq 2 ]] && mdir="$iidir/$host/$2"
+[[ $# -eq 1 ]] && mdir="$iidir/$host"
+while true; do
+  history -c
+  history -r "${mdir}/in-history"
+  clear
+  echo -e "${color5}serv: $host  |  chan: $2  |  nick: $nick${endcolor}"
+  read -e -r -p " >  " input_text
+  echo "$input_text" | tee -a "${mdir}/in-history" "${mdir}/in" >/dev/null
+done
