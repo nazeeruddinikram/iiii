@@ -6,11 +6,11 @@ nick="$(whoami)" ## defaults to username
 autoconnect=("freenode") # servers to autoconnect to
 
 # colors - "black, red, green, yellow, blue, magenta, cyan, white" with _bold or _bg
-nicks="yellow"
+nicks="blue"
 your_nick="white_bold"
-highlight="yellow_bg"
-action="yellow_bold"
-ui_accent="yellow"
+highlight="blue_bg"
+action="blue_bold"
+ui_accent="blue"
 
 # define servers
 freenode() {
